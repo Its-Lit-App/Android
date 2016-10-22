@@ -3,12 +3,15 @@ package com.kac.its_lit_android;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
+import com.parse.*;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -22,6 +25,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        Parse.initialize(new Parse.Configuration.Builder(this)
+                .applicationId(DBID.appID)
+                .server(DBID.serverID)
+        .build()
+        );
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("TestObject");
+        query.whereEqualTo("foo","bar");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                for (ParseObject o : objects) {
+                    //Print out the test object on the DB:
+                    System.out.println("Found object: " + o.getObjectId());
+                }
+            }
+        });
     }
 
 

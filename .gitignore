@@ -48,3 +48,9 @@ captures/
 
 # Keystore files
 *.jks
+
+#Database file for PARSE:
+app/src/main/java/com/kac/its_lit_android/DBID.java
+
+#dont include backup files either
+projectFilesBackup/*
