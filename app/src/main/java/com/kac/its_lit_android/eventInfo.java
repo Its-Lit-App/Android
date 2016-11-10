@@ -1,6 +1,7 @@
 package com.kac.its_lit_android;
 
 
+import com.google.android.gms.maps.model.LatLng;
 import java.util.Date;
 
 public class eventInfo {
@@ -9,13 +10,27 @@ public class eventInfo {
     private String title;
     private String content;
     private Date creationTime;
+    private double lat, lon;
 
-    public eventInfo(String t, String c, Date date){
+    public eventInfo(String t, String c, Date date, LatLng point){
         totalVotes = 0;
         scoreVotes = 0;
         title = t;
         content = c;
         creationTime = date;
+        lat = point.latitude;
+        lon = point.longitude;
+    }
+
+    public eventInfo(String t, String c, Date date, int totalVotes, int scoreVotes, LatLng point){
+        this.totalVotes = totalVotes;
+        this.scoreVotes = scoreVotes;
+        title = t;
+        content = c;
+        creationTime = date;
+
+        lat = point.latitude;
+        lon = point.longitude;
     }
 
     public void upVote(){
@@ -44,7 +59,10 @@ public class eventInfo {
         return content;
     }
 
-    public Date returnDate(){
+    public Date getDate(){
         return creationTime;
     }
+
+    public double getLat() { return lat; }
+    public double getLon() { return lon; }
 }

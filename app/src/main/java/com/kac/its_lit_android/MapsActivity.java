@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.Date;
 import java.util.HashMap;
+import com.parse.*;
 
 import static android.widget.Toast.LENGTH_LONG;
 
@@ -35,6 +36,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
     private LatLng p;
     private GoogleMap mMap;
     private HashMap<Marker, eventInfo> eventMap;
+    private DatabaseManager databaseManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        databaseManager = new DatabaseManager(this);
     }
 
 
@@ -81,6 +84,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
                 title = data.getStringExtra("Title");
                 content = data.getStringExtra("Content");
                 createMarker(p, title, content);
+
+
             }
         }
     }
@@ -89,7 +94,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
                 .position(new LatLng(point.latitude, point.longitude))
                 .title(title));
 
-        eventInfo data = new eventInfo(title, content, new Date());
+        eventInfo data = new eventInfo(title, content, new Date(), p);
+        databaseManager.saveToDatabase(data);
         System.out.println(point.latitude + "---" + point.longitude);
         eventMap.put(marker, data);
     }
