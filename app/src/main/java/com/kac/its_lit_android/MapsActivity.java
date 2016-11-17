@@ -48,6 +48,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
         mapFragment.getMapAsync(this);
 
         databaseManager = new DatabaseManager(this);
+        databaseManager.loadBetweenCoordinates(0,0,0,0);
     }
 
 
@@ -98,6 +99,14 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
         databaseManager.saveToDatabase(data);
         System.out.println(point.latitude + "---" + point.longitude);
         eventMap.put(marker, data);
+    }
+
+    public void createMarkerFromDB(eventInfo event) {
+        Marker marker = mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(event.getLat(), event.getLon()))
+                .title(event.getTitle()));
+        System.out.println(event.getLat() + "---" + event.getLon());
+        eventMap.put(marker, event);
     }
 
 }
