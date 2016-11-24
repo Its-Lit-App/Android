@@ -2,12 +2,18 @@ package com.kac.its_lit_android;
 
 import android.app.Activity;
 import android.graphics.Camera;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
+import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -37,14 +43,15 @@ import com.parse.*;
 import static android.widget.Toast.LENGTH_LONG;
 
 //GoogleMap.OnInfoWindowClickListener,
-public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWindowClickListener,
+public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoWindowClickListener,
         GoogleMap.OnCameraMoveListener,
         OnMapReadyCallback {
 
-
+    //Variables for the drawer view
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
+    private String[] mDrawerTitles;
 
     private String title, content;
     private LatLng p;
@@ -64,20 +71,79 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //handle side nav
+
+
+        //Handle Drawer initialization
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        /*
+        mDrawerTitles = getResources().getStringArray(R.array.drawer_array);
+
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         // set up the drawer's list view with items and click listener
         mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, mPlanetTitles));
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());*/
+                R.layout.drawer_list_item, mDrawerTitles));
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        // enable ActionBar app icon to behave as action to toggle nav drawer
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_hamburger);
+        getSupportActionBar().setTitle("It's Lit");
+
+
+        // ActionBarDrawerToggle ties together the the proper interactions
+        // between the sliding drawer and the action bar app icon
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                mDrawerLayout,         /* DrawerLayout object */
+                R.string.drawer_open,  /* "open drawer" description for accessibility */
+                R.string.drawer_close  /* "close drawer" description for accessibility */
+        ) {
+            public void onDrawerClosed(View view) {
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
 
         databaseManager = new DatabaseManager(this);
     }
 
+    //Function for when the hamburger button has been pressed:
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        //System.out.println("Test.");
+        if (menuItem.getItemId() == android.R.id.home) {
+            //System.out.println("Home Pressed.");
+            if (!mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
+                mDrawerLayout.openDrawer(Gravity.LEFT);
+            } else {
+                mDrawerLayout.closeDrawer(Gravity.LEFT);
+            }
+        }
+        return super.onOptionsItemSelected(menuItem);
+    }
+
+    //Define our listener class for the app button:
+    /* The click listner for ListView in the navigation drawer */
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            //view.setBackgroundColor(Color.CYAN);
+            mDrawerList.clearChoices();
+            selectItem(position);
+        }
+    }
+
+    //Function that gets called when a navigation items gets selected:
+    private void selectItem(int position) {
+        System.out.println("Selected item: " + mDrawerTitles[position]);
+        mDrawerLayout.closeDrawer(mDrawerList);
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -107,8 +173,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15.0f));
         lastUpdate = mMap.getCameraPosition();
 
-        LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
-        databaseManager.loadBetweenCoordinates(bounds);
+        //
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+                //Only load the current on screen markers if after the map has loaded:
+                LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+                databaseManager.loadBetweenCoordinates(bounds);
+            }
+        });
+
     }
 
     //When the map is moved, this function is called:

@@ -14,9 +14,11 @@ public class DatabaseManager {
     private HashMap<String, eventInfo> eventInfoMap = new HashMap<String, eventInfo>();
   public DatabaseManager(MapsActivity fragmentActivity) {
       this.mapsActivity = fragmentActivity;
-    Parse.enableLocalDatastore((FragmentActivity)fragmentActivity);
+
+      //Crashes for some reason if you minimize then reopen:
     Parse.initialize(new Parse.Configuration.Builder((FragmentActivity)fragmentActivity).applicationId(DBID.appID).server(DBID.serverID).build());
-    
+
+      //Parse.enableLocalDatastore((FragmentActivity)fragmentActivity);
   }
   //Save an event object to the database async
   public void saveToDatabase(eventInfo e) {
