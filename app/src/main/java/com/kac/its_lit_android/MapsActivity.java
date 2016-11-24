@@ -5,7 +5,12 @@ import android.graphics.Camera;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 import android.view.View;
 import android.content.Intent;
@@ -36,12 +41,19 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
         GoogleMap.OnCameraMoveListener,
         OnMapReadyCallback {
 
+
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ActionBarDrawerToggle mDrawerToggle;
+
     private String title, content;
     private LatLng p;
     private GoogleMap mMap;
     private HashMap<Marker, eventInfo> eventMap;
     private DatabaseManager databaseManager;
     private LatLng GAINESVILLE = new LatLng(29.6516, -82.3248);
+    private double[] distanceChecker = {50, 30, 25, 15, 10, 7.5, 5, 2.5, 1.5, 1, 0.5, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005, 0.003, 0.002, 0.001, 0.0005};
+    private CameraPosition lastUpdate = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,14 +64,26 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        //handle side nav
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        /*
+        // set a custom shadow that overlays the main content when the drawer opens
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        // set up the drawer's list view with items and click listener
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, mPlanetTitles));
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());*/
+
         databaseManager = new DatabaseManager(this);
-        databaseManager.loadBetweenCoordinates(0,0,0,0);
     }
 
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+
         eventMap = new HashMap<Marker, eventInfo>();
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
 
@@ -81,22 +105,35 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
         //Default Map Location
         mMap.moveCamera(CameraUpdateFactory.newLatLng(GAINESVILLE));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15.0f));
-        // Construct a CameraPosition focusing on Mountain View and animate the camera to that position.
-        /*CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(GAINESVILLE)      // Sets the center of the map to Mountain View
-                .zoom(17)                   // Sets the zoom
-                .bearing(90)                // Sets the orientation of the camera to east
-                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-                .build();                   // Creates a CameraPosition from the builder
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));*/
+        lastUpdate = mMap.getCameraPosition();
+
+        LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+        databaseManager.loadBetweenCoordinates(bounds);
     }
 
     //When the map is moved, this function is called:
     @Override
     public void onCameraMove() {
 
+        CameraPosition newPosition = mMap.getCameraPosition();
+        //Only update if we have changed enough position from before:
+        if (pythag(lastUpdate, newPosition) > distanceChecker[(int)newPosition.zoom]) {
+            System.out.println("Zoom: " + newPosition.zoom + ", Distance: " + distanceChecker[(int)newPosition.zoom]);
+            lastUpdate = newPosition;
+            LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+            databaseManager.loadBetweenCoordinates(bounds);
+            System.out.println("Updated at: " + bounds);
+        }
 
+    }
 
+    public double pythag(CameraPosition oldPosition, CameraPosition newPosition) {
+        Double latOld = oldPosition.target.latitude;
+        Double lonOld = oldPosition.target.longitude;
+        Double latNew = newPosition.target.latitude;
+        Double lonNew = newPosition.target.longitude;
+
+        return Math.sqrt(Math.pow(latOld-latNew, 2) + Math.pow(lonOld-lonNew, 2));
     }
 
     public void onInfoWindowClick(Marker marker){
@@ -130,6 +167,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
     }
 
     public void createMarkerFromDB(eventInfo event) {
+
         Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(event.getLat(), event.getLon()))
                 .title(event.getTitle()));
