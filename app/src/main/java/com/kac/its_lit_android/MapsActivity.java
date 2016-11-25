@@ -1,11 +1,14 @@
 package com.kac.its_lit_android;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Camera;
 import android.graphics.Color;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -13,10 +16,13 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.view.View;
 import android.content.Intent;
@@ -29,6 +35,7 @@ import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -46,6 +53,15 @@ import static android.widget.Toast.LENGTH_LONG;
 public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoWindowClickListener,
         GoogleMap.OnCameraMoveListener,
         OnMapReadyCallback {
+
+    //Variables for info window:
+    private ViewGroup infoWindow;
+    private TextView infoTitle;
+    private TextView infoSnippet;
+    private Button infoButton;
+    private Button infoButtonDown;
+    private OnInfoWindowElemTouchListener infoButtonListener;
+    private OnInfoWindowElemTouchListener infoButtonDownListener;
 
     //Variables for the drawer view
     private DrawerLayout mDrawerLayout;
@@ -67,8 +83,9 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+
         mapFragment.getMapAsync(this);
 
 
@@ -113,6 +130,11 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
         databaseManager = new DatabaseManager(this);
     }
 
+    public static int getPixelsFromDp(Context context, float dp) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int)(dp * scale + 0.5f);
+    }
+
     //Function for when the hamburger button has been pressed:
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
@@ -149,6 +171,71 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        final MapWrapperLayout mapWrapperLayout = (MapWrapperLayout)findViewById(R.id.map_relative_layout);
+        // MapWrapperLayout initialization
+        // 39 - default marker height
+        // 20 - offset between the default InfoWindow bottom edge and it's content bottom edge
+        mapWrapperLayout.init(mMap, getPixelsFromDp(this, 39 + 20));
+        // We want to reuse the info window for all the markers,
+        // so let's create only one class member instance
+        this.infoWindow = (ViewGroup)getLayoutInflater().inflate(R.layout.info_window, null);
+        this.infoTitle = (TextView)infoWindow.findViewById(R.id.title);
+        this.infoSnippet = (TextView)infoWindow.findViewById(R.id.snippet);
+        this.infoButton = (Button)infoWindow.findViewById(R.id.button);
+        this.infoButtonDown = (Button)infoWindow.findViewById(R.id.buttonDown);
+
+        // Setting custom OnTouchListener which deals with the pressed state
+        // so it shows up
+        this.infoButtonListener = new OnInfoWindowElemTouchListener(infoButton,
+                ContextCompat.getDrawable(this, R.drawable.btn_up_unpressed),
+                ContextCompat.getDrawable(this, R.drawable.btn_up_pressed))
+        {
+            @Override
+            protected void onClickConfirmed(View v, Marker marker) {
+                // Here we can perform some action triggered after clicking the button
+                //Toast.makeText(MainActivity.this, marker.getTitle() + "'s button clicked!", Toast.LENGTH_SHORT).show();
+                System.out.println(marker.getTitle() + "'s button up clicked!");
+            }
+        };
+        this.infoButton.setOnTouchListener(infoButtonListener);
+
+        this.infoButtonDownListener = new OnInfoWindowElemTouchListener(infoButtonDown,
+                ContextCompat.getDrawable(this, R.drawable.btn_down_unpressed),
+                ContextCompat.getDrawable(this, R.drawable.btn_down_pressed))
+        {
+            @Override
+            protected void onClickConfirmed(View v, Marker marker) {
+                // Here we can perform some action triggered after clicking the button
+                //Toast.makeText(MainActivity.this, marker.getTitle() + "'s button clicked!", Toast.LENGTH_SHORT).show();
+                System.out.println(marker.getTitle() + "'s button down clicked!");
+            }
+        };
+        this.infoButtonDown.setOnTouchListener(infoButtonDownListener);
+
+
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                // Setting up the infoWindow with current's marker info
+                infoTitle.setText(marker.getTitle());
+                infoSnippet.setText(eventMap.get(marker).getContent());
+                infoButtonListener.setMarker(marker);
+                infoButtonDownListener.setMarker(marker);
+
+                // We must call this to set the current marker and infoWindow references
+                // to the MapWrapperLayout
+                mapWrapperLayout.setMarkerWithInfoWindow(marker, infoWindow);
+                return infoWindow;
+            }
+        });
+
+        //End of info window setup
 
         eventMap = new HashMap<Marker, eventInfo>();
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
@@ -162,7 +249,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
             }
         });
 
-        mMap.setOnInfoWindowClickListener(this);
+        //mMap.setOnInfoWindowClickListener(this);
 
         //Setup listener for map moving
 
