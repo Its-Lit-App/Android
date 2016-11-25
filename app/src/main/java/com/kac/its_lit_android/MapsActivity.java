@@ -2,9 +2,14 @@ package com.kac.its_lit_android;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Camera;
 import android.graphics.Color;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -14,6 +19,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.ViewGroup;
@@ -27,7 +33,7 @@ import android.widget.Toast;
 import android.view.View;
 import android.content.Intent;
 
-
+import android.Manifest;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -88,9 +94,10 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
 
         mapFragment.getMapAsync(this);
 
+        //Map location permissions:
+        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
-
-        //Handle Drawer initialization
+        //Handle Drawer initialization//
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
         mDrawerTitles = getResources().getStringArray(R.array.drawer_array);
@@ -170,6 +177,36 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+
+        // Enable MyLocation Layer of Google Map
+        if(checkLocationPermission())
+            mMap.setMyLocationEnabled(true);
+
+        // Get LocationManager object from System Service LOCATION_SERVICE
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        // Create a criteria object to retrieve provider
+        Criteria criteria = new Criteria();
+
+        // Get the name of the best provider
+        String provider = locationManager.getBestProvider(criteria, true);
+
+        // Get Current Location
+        Location myLocation = locationManager.getLastKnownLocation(provider);
+
+        if(myLocation != null) {
+            // Get latitude of the current location
+            double latitude = myLocation.getLatitude();
+            // Get longitude of the current location
+            double longitude = myLocation.getLongitude();
+            // Create a LatLng object for the current location
+            LatLng latLng = new LatLng(latitude, longitude);
+            // Show the current location in Google Map
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            // Zoom in the Google Map
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         final MapWrapperLayout mapWrapperLayout = (MapWrapperLayout)findViewById(R.id.map_relative_layout);
@@ -334,6 +371,31 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
                 .title(event.getTitle()));
         System.out.println(event.getLat() + "---" + event.getLon());
         eventMap.put(marker, event);
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
+    public boolean checkLocationPermission()
+    {
+        String permission = "android.permission.ACCESS_FINE_LOCATION";
+        int res = this.checkCallingOrSelfPermission(permission);
+        return (res == PackageManager.PERMISSION_GRANTED);
     }
 
 }
