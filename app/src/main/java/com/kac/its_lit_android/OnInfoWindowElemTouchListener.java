@@ -18,12 +18,14 @@ public abstract class OnInfoWindowElemTouchListener implements OnTouchListener {
     private final Handler handler = new Handler();
 
     private Marker marker;
-    private boolean pressed = true;
+    private boolean pressed = false;
 
     public OnInfoWindowElemTouchListener(View view, Drawable bgDrawableNormal, Drawable bgDrawablePressed) {
         this.view = view;
         this.bgDrawableNormal = bgDrawableNormal;
         this.bgDrawablePressed = bgDrawablePressed;
+
+        view.setBackground(bgDrawableNormal);
     }
 
     public void setMarker(Marker marker) {

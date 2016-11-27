@@ -2,9 +2,13 @@ package com.kac.its_lit_android;
 
 
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.ParseObject;
+
 import java.util.Date;
 
 public class eventInfo {
+    public ParseObject PO = null;
+    private String id;
     private int totalVotes;
     private int scoreVotes;
     private String title;
@@ -62,6 +66,11 @@ public class eventInfo {
     public Date getDate(){
         return creationTime;
     }
+
+    public String getId() { return id; }
+    public void setId(String s) { id = s; }
+    public void setTotalVotes(int s) { totalVotes = s; }
+    public void setScoreVotes(int s) { scoreVotes = s; }
 
     public double getLat() { return lat; }
     public double getLon() { return lon; }
