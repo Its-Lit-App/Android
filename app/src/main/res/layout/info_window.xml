@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:textSize="18sp"
             android:layout_gravity="center_horizontal"
-            android:text="0" />
+            android:editable="true" />
     <Button
         android:id="@+id/buttonDown"
         android:layout_width="46sp"

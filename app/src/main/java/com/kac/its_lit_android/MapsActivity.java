@@ -1,15 +1,16 @@
 package com.kac.its_lit_android;
 
 import android.app.Activity;
-<<<<<<< HEAD
+
 import android.content.pm.PackageManager;
 import android.Manifest;
-=======
+
 import android.content.Context;
 import android.graphics.Camera;
 import android.graphics.Color;
->>>>>>> origin/master
+
 import android.net.Uri;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -48,6 +49,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -63,7 +66,7 @@ import com.parse.*;
 import static android.widget.Toast.LENGTH_LONG;
 
 //GoogleMap.OnInfoWindowClickListener,
-public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoWindowClickListener,
+public class MapsActivity extends AppCompatActivity implements
         GoogleMap.OnCameraMoveListener,
         OnMapReadyCallback {
 
@@ -72,6 +75,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
     private TextView infoTitle;
     private TextView infoSnippet;
     private Button infoButton;
+    private TextView infoVotes;
     private Button infoButtonDown;
     private OnInfoWindowElemTouchListener infoButtonListener;
     private OnInfoWindowElemTouchListener infoButtonDownListener;
@@ -102,9 +106,9 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
 
         mapFragment.getMapAsync(this);
 
-<<<<<<< HEAD
+
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-=======
+
 
 
         //Handle Drawer initialization
@@ -143,7 +147,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
             }
         };
         mDrawerLayout.addDrawerListener(mDrawerToggle);
->>>>>>> origin/master
+
 
         databaseManager = new DatabaseManager(this);
     }
@@ -202,6 +206,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
         this.infoTitle = (TextView)infoWindow.findViewById(R.id.title);
         this.infoSnippet = (TextView)infoWindow.findViewById(R.id.snippet);
         this.infoButton = (Button)infoWindow.findViewById(R.id.button);
+        this.infoVotes = (TextView)infoWindow.findViewById(R.id.votes);
         this.infoButtonDown = (Button)infoWindow.findViewById(R.id.buttonDown);
 
         // Setting custom OnTouchListener which deals with the pressed state
@@ -214,7 +219,11 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
             protected void onClickConfirmed(View v, Marker marker) {
                 // Here we can perform some action triggered after clicking the button
                 //Toast.makeText(MainActivity.this, marker.getTitle() + "'s button clicked!", Toast.LENGTH_SHORT).show();
+                eventInfo eventinfo = eventMap.get(marker);
+                eventinfo.upVote();
+                infoVotes.setText(Integer.toString(eventinfo.getScoreVotes()));;
                 System.out.println(marker.getTitle() + "'s button up clicked!");
+                marker.showInfoWindow();
             }
         };
         this.infoButton.setOnTouchListener(infoButtonListener);
@@ -227,7 +236,12 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
             protected void onClickConfirmed(View v, Marker marker) {
                 // Here we can perform some action triggered after clicking the button
                 //Toast.makeText(MainActivity.this, marker.getTitle() + "'s button clicked!", Toast.LENGTH_SHORT).show();
+
+                eventInfo eventinfo = eventMap.get(marker);
+                eventinfo.downVote();
+                infoVotes.setText(Integer.toString(eventinfo.getScoreVotes()));
                 System.out.println(marker.getTitle() + "'s button down clicked!");
+                marker.showInfoWindow();
             }
         };
         this.infoButtonDown.setOnTouchListener(infoButtonDownListener);
@@ -350,12 +364,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
         return Math.sqrt(Math.pow(latOld-latNew, 2) + Math.pow(lonOld-lonNew, 2));
     }
 
-    public void onInfoWindowClick(Marker marker){
-        eventInfo eventinfo = eventMap.get(marker);
-        Toast.makeText(getBaseContext(), eventinfo.getTitle() + eventinfo.getContent(),
-                LENGTH_LONG).show();
 
-    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
@@ -380,7 +389,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
         eventMap.put(marker, data);
     }
 
-<<<<<<< HEAD
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {
@@ -408,7 +416,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
 
 
 
-=======
+
     public void createMarkerFromDB(eventInfo event) {
 
         Marker marker = mMap.addMarker(new MarkerOptions()
@@ -418,7 +426,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnInfoW
         eventMap.put(marker, event);
     }
 
->>>>>>> origin/master
+
 }
 
 
