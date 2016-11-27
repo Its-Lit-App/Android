@@ -256,8 +256,10 @@ public class MapsActivity extends AppCompatActivity implements
             @Override
             public View getInfoContents(Marker marker) {
                 // Setting up the infoWindow with current's marker info
+                eventInfo eventinfo = eventMap.get(marker);
                 infoTitle.setText(marker.getTitle());
                 infoSnippet.setText(eventMap.get(marker).getContent());
+                infoVotes.setText(eventinfo.getVotes());
                 infoButtonListener.setMarker(marker);
                 infoButtonDownListener.setMarker(marker);
 
