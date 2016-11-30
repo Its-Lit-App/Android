@@ -41,6 +41,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".event_creation"></activity>
+        <activity android:name=".help_window"></activity>
+        <activity android:name=".featured_window"></activity>
+        <activity android:name=".settings_window"></activity>
     </application>
 
 </manifest>

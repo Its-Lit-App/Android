@@ -14,6 +14,8 @@ import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
@@ -111,10 +113,7 @@ public class MapsActivity extends AppCompatActivity implements
 
         mapFragment.getMapAsync(this);
 
-
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-
-
 
         //Handle Drawer initialization
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -191,6 +190,32 @@ public class MapsActivity extends AppCompatActivity implements
     //Function that gets called when a navigation items gets selected:
     private void selectItem(int position) {
         System.out.println("Selected item: " + mDrawerTitles[position]);
+        switch (mDrawerTitles[position]) {
+            case "Help":
+            {
+                Intent i = new Intent(MapsActivity.this, help_window.class);
+                Bundle bundle = i.getExtras();
+                startActivityForResult(i, 1);
+            }
+            break;
+            case "Settings":
+            {
+                Intent i = new Intent(MapsActivity.this, settings_window.class);
+                Bundle bundle = i.getExtras();
+                startActivityForResult(i, 1);
+            }
+            break;
+            case "Featured":
+            {
+                Intent i = new Intent(MapsActivity.this, featured_window.class);
+                Bundle bundle = i.getExtras();
+                startActivityForResult(i, 1);
+            }
+            break;
+
+            default:
+                break;
+        }
         mDrawerLayout.closeDrawer(mDrawerList);
     }
 
