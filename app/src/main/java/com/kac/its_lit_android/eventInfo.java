@@ -15,8 +15,9 @@ public class eventInfo {
     private String content;
     private Date creationTime;
     private double lat, lon;
+    private String userID;
 
-    public eventInfo(String t, String c, Date date, LatLng point){
+    public eventInfo(String t, String c, Date date, LatLng point, String phoneID){
         totalVotes = 0;
         scoreVotes = 0;
         title = t;
@@ -24,9 +25,10 @@ public class eventInfo {
         creationTime = date;
         lat = point.latitude;
         lon = point.longitude;
+        userID = phoneID;
     }
 
-    public eventInfo(String t, String c, Date date, int totalVotes, int scoreVotes, LatLng point){
+    public eventInfo(String t, String c, Date date, int totalVotes, int scoreVotes, LatLng point, String phoneID){
         this.totalVotes = totalVotes;
         this.scoreVotes = scoreVotes;
         title = t;
@@ -35,6 +37,8 @@ public class eventInfo {
 
         lat = point.latitude;
         lon = point.longitude;
+
+        userID = phoneID;
     }
 
     public void upVote(){
@@ -74,4 +78,6 @@ public class eventInfo {
 
     public double getLat() { return lat; }
     public double getLon() { return lon; }
+
+    public String getUserID() { return userID; }
 }

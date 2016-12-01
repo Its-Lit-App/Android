@@ -28,6 +28,13 @@ public abstract class OnInfoWindowElemTouchListener implements OnTouchListener {
         view.setBackground(bgDrawableNormal);
     }
 
+    public OnInfoWindowElemTouchListener(View view) {
+        this.view = view;
+        this.bgDrawableNormal = null;
+        this.bgDrawablePressed = null;
+
+    }
+
     public void setMarker(Marker marker) {
         this.marker = marker;
         handler.postDelayed(confirmClickRunnable, 150);

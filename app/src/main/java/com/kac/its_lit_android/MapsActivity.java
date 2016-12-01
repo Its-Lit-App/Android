@@ -39,6 +39,8 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.provider.Settings.Secure;
+import static java.security.AccessController.getContext;
 
 
 
@@ -84,6 +86,8 @@ public class MapsActivity extends AppCompatActivity implements
     private Button infoButton;
     private TextView infoVotes;
     private Button infoButtonDown;
+    private Button infoDeleteButton;
+    private OnInfoWindowElemTouchListener infoDeleteButtonListener;
     private OnInfoWindowElemTouchListener infoButtonListener;
     private OnInfoWindowElemTouchListener infoButtonDownListener;
 
@@ -93,6 +97,8 @@ public class MapsActivity extends AppCompatActivity implements
     private ActionBarDrawerToggle mDrawerToggle;
     private String[] mDrawerTitles;
 
+    //private String android_id = Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
+    private String android_id;
     private String title, content;
     private LatLng p;
     private GoogleMap mMap;
@@ -112,7 +118,7 @@ public class MapsActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
-
+        android_id = Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
         //Handle Drawer initialization
@@ -235,9 +241,11 @@ public class MapsActivity extends AppCompatActivity implements
         this.infoWindow = (ViewGroup)getLayoutInflater().inflate(R.layout.info_window, null);
         this.infoTitle = (TextView)infoWindow.findViewById(R.id.title);
         this.infoSnippet = (TextView)infoWindow.findViewById(R.id.snippet);
+        this.infoDeleteButton = (Button)infoWindow.findViewById(R.id.deleteButton);
         this.infoButton = (Button)infoWindow.findViewById(R.id.button);
         this.infoVotes = (TextView)infoWindow.findViewById(R.id.votes);
         this.infoButtonDown = (Button)infoWindow.findViewById(R.id.buttonDown);
+
 
         // Setting custom OnTouchListener which deals with the pressed state
         // so it shows up
@@ -268,6 +276,37 @@ public class MapsActivity extends AppCompatActivity implements
         };
         this.infoButtonDown.setOnTouchListener(infoButtonDownListener);
 
+        this.infoDeleteButtonListener = new OnInfoWindowElemTouchListener(infoDeleteButton)
+        {
+            @Override
+            protected void onClickConfirmed(View v, Marker marker) {
+                final eventInfo eventinfo = eventMap.get(marker);
+                final Marker m2 = marker;
+                String eID = null;
+                if (eventinfo.getId() == null) {
+                    eID = eventinfo.PO.getObjectId();
+                    eventinfo.setId(eventinfo.PO.getObjectId());
+                } else {
+                    eID = eventinfo.getId();
+                }
+                final String IDFinal = eID;
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("Event");
+                //First we need to make sure our object is synced with the database
+                // Retrieve the object by id
+                query.getInBackground(IDFinal, new GetCallback<ParseObject>() {
+                    public void done(ParseObject o, ParseException e) {
+                        if (e == null) {
+                            o.deleteInBackground();
+                        }
+                    }
+                });
+                eventInfo e2 = eventMap.get(marker);
+                e2 = null;
+                marker.remove();
+            }
+        };
+        this.infoDeleteButton.setOnTouchListener(infoDeleteButtonListener);
+
 
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
             @Override
@@ -284,6 +323,9 @@ public class MapsActivity extends AppCompatActivity implements
                 infoSnippet.setText(eventMap.get(marker).getContent());
                 infoButtonListener.setMarker(marker);
                 infoButtonDownListener.setMarker(marker);
+                infoDeleteButtonListener.setMarker(marker);
+                if( eventinfo.getUserID() == android_id)
+                    infoDeleteButton.setVisibility(View.VISIBLE);
 
                 // We must call this to set the current marker and infoWindow references
                 // to the MapWrapperLayout
@@ -457,7 +499,7 @@ public class MapsActivity extends AppCompatActivity implements
         }
     }
     public void createMarker(LatLng point, String title, String content){
-        eventInfo data = new eventInfo(title, content, new Date(), p);
+        eventInfo data = new eventInfo(title, content, new Date(), p, android_id);
         Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(point.latitude, point.longitude))
                 .title(title)

@@ -24,6 +24,13 @@
             android:textSize="18sp"
             android:text="snippet" />
 
+        <Button
+            android:text="DELETE"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/deleteButton"
+            android:visibility="invisible" />
+
     </LinearLayout>
 
     <LinearLayout

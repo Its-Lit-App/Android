@@ -78,6 +78,8 @@ public class DatabaseManager {
     object.put("scoreVotes", e.getScoreVotes());
     object.put("content", e.getContent());
     object.put("date", e.getDate());
+    object.put("userID", e.getUserID());
+
     //object.put("city", e.city);
     object.saveInBackground();
       e.PO = object;
@@ -91,8 +93,8 @@ public class DatabaseManager {
       LatLng southWest = new LatLng(oldBounds.southwest.latitude - distanceHoriz, oldBounds.southwest.longitude - distanceVert);
       //Double the bounds for the loaded pins
       LatLngBounds bounds = new LatLngBounds(southWest, northEast);
-    ParseQuery<ParseObject> query = ParseQuery.getQuery("Event");
-    final eventInfo eventFinal = null;
+      ParseQuery<ParseObject> query = ParseQuery.getQuery("Event");
+      final eventInfo eventFinal = null;
         query.whereGreaterThanOrEqualTo("lat", bounds.southwest.latitude).whereLessThanOrEqualTo("lat", bounds.northeast.latitude).whereGreaterThanOrEqualTo("lon", bounds.southwest.longitude).whereLessThanOrEqualTo("lon", bounds.northeast.longitude);
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
@@ -102,7 +104,7 @@ public class DatabaseManager {
                     System.out.println(o.getObjectId());
                     if (!eventInfoMap.containsKey(o.getObjectId())) {
                         //Print out the test object on the DB:
-                        eventInfo event = new eventInfo(o.getString("title"), o.getString("content"), o.getDate("date"), o.getInt("totalVotes"), o.getInt("scoreVotes"), new LatLng(o.getDouble("lat"), o.getDouble("lon")));
+                        eventInfo event = new eventInfo(o.getString("title"), o.getString("content"), o.getDate("date"), o.getInt("totalVotes"), o.getInt("scoreVotes"), new LatLng(o.getDouble("lat"), o.getDouble("lon")), o.getString("userID"));
                         event.setId(o.getObjectId());
                         mapsActivity.createMarkerFromDB(event);
                         eventInfoMap.put(o.getObjectId(), event);
