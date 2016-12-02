@@ -1,61 +1,36 @@
 package com.kac.its_lit_android;
 
-import android.app.Activity;
-
-import android.content.pm.PackageManager;
 import android.Manifest;
-
+import android.app.Activity;
 import android.content.Context;
-import android.graphics.Camera;
-import android.graphics.Color;
-
-import android.net.Uri;
-import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.provider.Settings.Secure;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.view.View;
-import android.content.Intent;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.provider.Settings.Secure;
-import static java.security.AccessController.getContext;
 
-
-
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.appindexing.Thing;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -63,14 +38,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+
 import java.util.Date;
 import java.util.HashMap;
-import android.content.Context;
-import com.parse.*;
-
-import static android.widget.Toast.LENGTH_LONG;
 
 //GoogleMap.OnInfoWindowClickListener,
 public class MapsActivity extends AppCompatActivity implements
@@ -326,6 +300,8 @@ public class MapsActivity extends AppCompatActivity implements
                 infoDeleteButtonListener.setMarker(marker);
                 if( eventinfo.getUserID() == android_id)
                     infoDeleteButton.setVisibility(View.VISIBLE);
+                else
+                    infoDeleteButton.setVisibility(View.GONE);
 
                 // We must call this to set the current marker and infoWindow references
                 // to the MapWrapperLayout
