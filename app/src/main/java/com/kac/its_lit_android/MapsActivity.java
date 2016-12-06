@@ -52,7 +52,7 @@ public class MapsActivity extends AppCompatActivity implements
         OnMapReadyCallback {
 
     //Variable for debugging:
-    public boolean debug = false;
+    public static boolean debug = false;
     //Variables for info window:
     private ViewGroup infoWindow;
     private TextView infoTitle;
@@ -298,7 +298,7 @@ public class MapsActivity extends AppCompatActivity implements
                 infoButtonListener.setMarker(marker);
                 infoButtonDownListener.setMarker(marker);
                 infoDeleteButtonListener.setMarker(marker);
-                if( eventinfo.getUserID() == android_id)
+                if( eventinfo.getUserID() == android_id | debug)
                     infoDeleteButton.setVisibility(View.VISIBLE);
                 else
                     infoDeleteButton.setVisibility(View.GONE);
@@ -534,5 +534,13 @@ public class MapsActivity extends AppCompatActivity implements
         } else  {
             return BitmapDescriptorFactory.fromResource(R.drawable.mkr_4);
         }
+    }
+
+    public static void moderationModeOn() {
+        debug = true;
+    }
+
+    public static void moderationModeOff() {
+        debug = false;
     }
 }
