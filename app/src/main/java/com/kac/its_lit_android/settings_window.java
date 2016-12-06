@@ -22,9 +22,9 @@ public class settings_window extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setTitle("Settings");
         modSwitch = (Switch) findViewById(R.id.modSwitch);
+        //Set to FALSE initially but then maintains whether or not DEBUG is enabled
+        modSwitch.setChecked(MapsActivity.debug);
 
-        //set the switch to OFF
-        modSwitch.setChecked(false);
         //attach a listener to check for changes in state
         modSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
@@ -36,9 +36,8 @@ public class settings_window extends AppCompatActivity {
                     MapsActivity.moderationModeOn();
                 }
                 else{
-                    MapsActivity.moderationModeOn();
+                    MapsActivity.moderationModeOff();
                 }
-
             }
         });
 
@@ -60,5 +59,4 @@ public class settings_window extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(menuItem);
     }
-
 }
