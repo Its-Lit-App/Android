@@ -298,7 +298,7 @@ public class MapsActivity extends AppCompatActivity implements
                 infoButtonListener.setMarker(marker);
                 infoButtonDownListener.setMarker(marker);
                 infoDeleteButtonListener.setMarker(marker);
-                if( eventinfo.getUserID() == android_id | debug)
+                if( eventinfo.getUserID() == android_id || debug)
                     infoDeleteButton.setVisibility(View.VISIBLE);
                 else
                     infoDeleteButton.setVisibility(View.GONE);
