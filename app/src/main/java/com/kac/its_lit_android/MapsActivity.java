@@ -423,6 +423,30 @@ public class MapsActivity extends AppCompatActivity implements
 
                         infoVotes.setText(Integer.toString(eventinfo.getScoreVotes()));
                         m2.showInfoWindow();
+
+                        if (o.getInt("scoreVotes") == -5) {
+                            String eID = null;
+                            if (eventinfo.getId() == null) {
+                                eID = eventinfo.PO.getObjectId();
+                                eventinfo.setId(eventinfo.PO.getObjectId());
+                            } else {
+                                eID = eventinfo.getId();
+                            }
+                            final String IDFinal = eID;
+                            ParseQuery<ParseObject> query = ParseQuery.getQuery("Event");
+                            //First we need to make sure our object is synced with the database
+                            // Retrieve the object by id
+                            query.getInBackground(IDFinal, new GetCallback<ParseObject>() {
+                                public void done(ParseObject o, ParseException e) {
+                                    if (e == null) {
+                                        o.deleteInBackground();
+                                    }
+                                }
+                            });
+                            eventInfo e2 = eventMap.get(m2);
+                            e2 = null;
+                            m2.remove();
+                        }
                     }
                 }
             });
