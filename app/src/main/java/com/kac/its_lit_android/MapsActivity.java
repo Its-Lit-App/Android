@@ -574,7 +574,7 @@ public class MapsActivity extends AppCompatActivity implements
     public static boolean getModeration() { return debug; }
 
     public static eventInfo[] getFeatured() {
-        eventInfo[] activeEventInfo = (eventInfo[]) eventMap.values().toArray();
+        eventInfo[] activeEventInfo = eventMap.values().toArray(new eventInfo[0]);
         int first = Integer.MIN_VALUE, second = Integer.MIN_VALUE, third = Integer.MIN_VALUE;
         eventInfo firstE = activeEventInfo[0], secondE = activeEventInfo[0], thirdE = activeEventInfo[0];
         int numActiveEvents = eventMap.values().size();
