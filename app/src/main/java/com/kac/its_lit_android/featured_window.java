@@ -3,12 +3,27 @@ package com.kac.its_lit_android;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 /**
  * Created by Kevin on 11/29/2016.
  */
 
 public class featured_window extends AppCompatActivity {
+
+    private ListView featuredList;
+    private ArrayAdapter<String> listAdapter;
+    private List<Map<String, String>> dat = new ArrayList<Map<String, String>>();
+    private eventInfo[] featured;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.featured_window);
@@ -16,6 +31,17 @@ public class featured_window extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setTitle("Featured");
 
+        featured = MapsActivity.getFeatured();
+        featuredList = (ListView) findViewById(R.id.featuredList);
+        dat = new ArrayList<Map<String, String>>();
+        for(int i = 0; i < featured.length; i++){
+            HashMap<String,String> datum = new HashMap<String, String>();
+            datum.put("EventName", featured[i].getTitle());
+            datum.put("EventDetails", featured[i].getContent());
+            dat.add(datum);
+        }
+        SimpleAdapter adapter = new SimpleAdapter(this, dat, android.R.layout.simple_list_item_2, new String[] {"EventName", "EventDetails"}, new int[] {android.R.id.text1, android.R.id.text2});
+        featuredList.setAdapter(adapter);
     }
 
     //Function for when the hamburger button has been pressed:

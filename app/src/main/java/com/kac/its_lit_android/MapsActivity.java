@@ -77,7 +77,7 @@ public class MapsActivity extends AppCompatActivity implements
     private String title, content;
     private LatLng p;
     private GoogleMap mMap;
-    private HashMap<Marker, eventInfo> eventMap;
+    private static HashMap<Marker, eventInfo> eventMap;
     private DatabaseManager databaseManager;
     private LatLng GAINESVILLE = new LatLng(29.6516, -82.3248);
     private double[] distanceChecker = {50, 30, 25, 15, 10, 7.5, 5, 2.5, 1.5, 1, 0.5, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005, 0.003, 0.002, 0.001, 0.0005};
@@ -572,4 +572,41 @@ public class MapsActivity extends AppCompatActivity implements
 
     public static void updateInfoWindow() { if (currentMarker != null) {currentMarker.showInfoWindow();} }
     public static boolean getModeration() { return debug; }
+
+    public static eventInfo[] getFeatured() {
+        eventInfo[] activeEventInfo = (eventInfo[]) eventMap.values().toArray();
+        int first = Integer.MIN_VALUE, second = Integer.MIN_VALUE, third = Integer.MIN_VALUE;
+        eventInfo firstE = activeEventInfo[0], secondE = activeEventInfo[0], thirdE = activeEventInfo[0];
+        int numActiveEvents = eventMap.values().size();
+
+        for (int i = 0; i < activeEventInfo.length; i++) {
+            if (activeEventInfo[i].getScoreVotes() > first) {
+                third = second;
+                thirdE = secondE;
+                second = first;
+                secondE = firstE;
+                first = activeEventInfo[i].getScoreVotes();
+                firstE = activeEventInfo[i];
+            } else if (activeEventInfo[i].getScoreVotes() > second) {
+                if (first == activeEventInfo[i].getScoreVotes()) {
+                    // Neglect as already present in first
+                } else {
+                    third = second;
+                    thirdE = secondE;
+                    second = activeEventInfo[i].getScoreVotes();
+                    secondE = activeEventInfo[i];
+                }
+            } else if (activeEventInfo[i].getScoreVotes() > third) {
+                if (first == activeEventInfo[i].getScoreVotes() || second == activeEventInfo[i].getScoreVotes()) {
+                    // Neglect as already present in first OR second
+                } else {
+                    third = activeEventInfo[i].getScoreVotes();
+                    thirdE = activeEventInfo[i];
+                }
+            }
+        }
+
+        eventInfo[] topThree = {firstE, secondE, thirdE};
+        return topThree;
+    }
 }
