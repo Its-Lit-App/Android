@@ -115,7 +115,25 @@ public class DatabaseManager {
         });
   }
   //Void to update an event object async
-  public void updateDatabase(eventInfo e) {
-    
+  public void updateEvent(final eventInfo event, final String newTitle, final String newContent) {
+      ParseQuery<ParseObject> query = ParseQuery.getQuery("Event");
+      //First we need to make sure our object is synced with the database
+      // Retrieve the object by id
+      query.getInBackground(event.getId(), new GetCallback<ParseObject>() {
+          public void done(ParseObject o, ParseException e) {
+              if (e == null) {
+                  // Now let's update it with some new data. In this case, only cheatMode and score
+                  // will get sent to the Parse Cloud. playerName hasn't changed.
+
+                  o.put("title", newTitle);
+                  o.put("content", newContent);
+                  event.setTitle(newTitle);
+                  event.setContent(newContent);
+                  o.saveInBackground();
+                  mapsActivity.updateInfoWithEvent(event);
+              }
+
+          }
+      });
   }
 }

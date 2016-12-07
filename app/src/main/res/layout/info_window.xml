@@ -31,6 +31,13 @@
             android:id="@+id/deleteButton"
             android:visibility="invisible" />
 
+        <Button
+            android:text="EDIT"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/editButton"
+            android:visibility="invisible" />
+
     </LinearLayout>
 
     <LinearLayout

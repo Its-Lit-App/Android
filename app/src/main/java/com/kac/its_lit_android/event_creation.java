@@ -20,6 +20,15 @@ public class event_creation extends Activity {
 
 
         Button close = (Button)findViewById(R.id.inputSubmit);
+
+        Intent i2 = getIntent();
+        if (i2.getStringExtra("title") != null) {
+            close.setText("Edit");
+            EditText edit = (EditText) findViewById(R.id.inputTitle);
+            edit.setText(i2.getStringExtra("title"));
+            edit = (EditText) findViewById(R.id.inputContent);
+            edit.setText(i2.getStringExtra("content"));
+        }
         close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

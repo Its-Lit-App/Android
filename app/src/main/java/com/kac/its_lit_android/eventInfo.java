@@ -80,4 +80,6 @@ public class eventInfo {
     public double getLon() { return lon; }
 
     public String getUserID() { return userID; }
+    public void setContent(String content) { this.content = content;}
+    public void setTitle(String title) { this.title = title;}
 }

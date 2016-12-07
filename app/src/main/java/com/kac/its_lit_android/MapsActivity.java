@@ -61,6 +61,12 @@ public class MapsActivity extends AppCompatActivity implements
     private TextView infoVotes;
     private Button infoButtonDown;
     private Button infoDeleteButton;
+
+    private Button infoEditButton;
+    private OnInfoWindowElemTouchListener infoEditButtonListener;
+    public Marker editMarker = null;
+    public eventInfo editInfo = null;
+
     private OnInfoWindowElemTouchListener infoDeleteButtonListener;
     private OnInfoWindowElemTouchListener infoButtonListener;
     private OnInfoWindowElemTouchListener infoButtonDownListener;
@@ -222,6 +228,9 @@ public class MapsActivity extends AppCompatActivity implements
         this.infoButtonDown = (Button)infoWindow.findViewById(R.id.buttonDown);
 
 
+        this.infoEditButton = (Button)infoWindow.findViewById(R.id.editButton);
+
+
         // Setting custom OnTouchListener which deals with the pressed state
         // so it shows up
         this.infoButtonListener = new OnInfoWindowElemTouchListener(infoButton,
@@ -282,6 +291,21 @@ public class MapsActivity extends AppCompatActivity implements
         };
         this.infoDeleteButton.setOnTouchListener(infoDeleteButtonListener);
 
+        this.infoEditButtonListener = new OnInfoWindowElemTouchListener(infoEditButton)
+        {
+            @Override
+            protected void onClickConfirmed(View v, Marker marker) {
+                editInfo = eventMap.get(currentMarker);
+
+                Intent i = new Intent(MapsActivity.this, event_creation.class);
+                i.putExtra("title", editInfo.getTitle());
+                i.putExtra("content", editInfo.getContent());
+                Bundle bundle = i.getExtras();
+                startActivityForResult(i, 1);
+            }
+        };
+        this.infoEditButton.setOnTouchListener(infoEditButtonListener);
+
 
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
             @Override
@@ -300,10 +324,14 @@ public class MapsActivity extends AppCompatActivity implements
                 infoButtonListener.setMarker(marker);
                 infoButtonDownListener.setMarker(marker);
                 infoDeleteButtonListener.setMarker(marker);
-                if( eventinfo.getUserID() == android_id || debug)
+                if( eventinfo.getUserID() == android_id || debug) {
                     infoDeleteButton.setVisibility(View.VISIBLE);
-                else
+                    infoEditButton.setVisibility(View.VISIBLE);
+                }
+                else {
                     infoDeleteButton.setVisibility(View.GONE);
+                    infoEditButton.setVisibility(View.GONE);
+                }
 
                 // We must call this to set the current marker and infoWindow references
                 // to the MapWrapperLayout
@@ -492,13 +520,20 @@ public class MapsActivity extends AppCompatActivity implements
     {
         if(requestCode == 1){
             if(resultCode == Activity.RESULT_OK){
-                title = data.getStringExtra("Title");
-                content = data.getStringExtra("Content");
-                createMarker(p, title, content);
-
-
+                if (editInfo != null) {
+                    title = data.getStringExtra("Title");
+                    content = data.getStringExtra("Content");
+                    databaseManager.updateEvent(editInfo, title, content);
+                } else {
+                    title = data.getStringExtra("Title");
+                    content = data.getStringExtra("Content");
+                    createMarker(p, title, content);
+                }
             }
         }
+
+        editInfo = null;
+        editMarker = null;
     }
     public void createMarker(LatLng point, String title, String content){
         eventInfo data = new eventInfo(title, content, new Date(), p, android_id);
@@ -570,6 +605,19 @@ public class MapsActivity extends AppCompatActivity implements
         debug = false;
     }
 
-    public static void updateInfoWindow() { if (currentMarker != null) {currentMarker.showInfoWindow();} }
+    public static void updateInfoWindow() {
+        if (currentMarker != null) {
+        currentMarker.showInfoWindow();
+        }
+    }
+
+    public void updateInfoWithEvent(eventInfo e) {
+        if (currentMarker != null) {
+            currentMarker.setTitle(e.getTitle());
+            infoTitle.setText(e.getTitle());
+            infoSnippet.setText(e.getContent());
+            currentMarker.showInfoWindow();
+        }
+    }
     public static boolean getModeration() { return debug; }
 }
