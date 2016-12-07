@@ -22,7 +22,7 @@ public class settings_window extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setTitle("Settings");
         modSwitch = (Switch) findViewById(R.id.modSwitch);
-
+        
         //set the switch to OFF
         modSwitch.setChecked(false);
         if (MapsActivity.getModeration()) {
@@ -43,7 +43,6 @@ public class settings_window extends AppCompatActivity {
                     MapsActivity.moderationModeOff();
                     MapsActivity.updateInfoWindow();
                 }
-
             }
         });
 
@@ -65,5 +64,4 @@ public class settings_window extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(menuItem);
     }
-
 }
