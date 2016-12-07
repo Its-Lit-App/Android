@@ -3,9 +3,12 @@ package com.kac.its_lit_android;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +43,17 @@ public class featured_window extends AppCompatActivity {
             datum.put("EventDetails", featured[i].getContent());
             dat.add(datum);
         }
+
+        featuredList.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
+            {
+                MapsActivity.setPan(featured[position]);
+                finish();
+            }
+        });
+
         SimpleAdapter adapter = new SimpleAdapter(this, dat, android.R.layout.simple_list_item_2, new String[] {"EventName", "EventDetails"}, new int[] {android.R.id.text1, android.R.id.text2});
         featuredList.setAdapter(adapter);
     }

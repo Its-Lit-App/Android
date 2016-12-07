@@ -88,6 +88,8 @@ public class MapsActivity extends AppCompatActivity implements
     private LatLng GAINESVILLE = new LatLng(29.6516, -82.3248);
     private double[] distanceChecker = {50, 30, 25, 15, 10, 7.5, 5, 2.5, 1.5, 1, 0.5, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005, 0.003, 0.002, 0.001, 0.0005};
     private CameraPosition lastUpdate = null;
+    private boolean featured = false;
+    private static eventInfo featuredEvent = null;
 
 
     @Override
@@ -177,6 +179,7 @@ public class MapsActivity extends AppCompatActivity implements
     //Function that gets called when a navigation items gets selected:
     private void selectItem(int position) {
         System.out.println("Selected item: " + mDrawerTitles[position]);
+        featured = false;
         switch (mDrawerTitles[position]) {
             case "Help":
             {
@@ -194,6 +197,7 @@ public class MapsActivity extends AppCompatActivity implements
             break;
             case "Featured":
             {
+                featured = true;
                 Intent i = new Intent(MapsActivity.this, featured_window.class);
                 Bundle bundle = i.getExtras();
                 startActivityForResult(i, 1);
@@ -517,6 +521,12 @@ public class MapsActivity extends AppCompatActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
+        if (featuredEvent != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(featuredEvent.getLat(), featuredEvent.getLon())));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(15.0f));
+            lastUpdate = mMap.getCameraPosition();
+        }
+        featuredEvent = null;
         if(requestCode == 1){
             if(resultCode == Activity.RESULT_OK){
                 if (editInfo != null) {
@@ -602,6 +612,11 @@ public class MapsActivity extends AppCompatActivity implements
 
     public static void moderationModeOff() {
         debug = false;
+    }
+
+    public static void setPan(eventInfo e) {
+        //Default Map Location
+        featuredEvent = e;
     }
 
     public static void updateInfoWindow() {
