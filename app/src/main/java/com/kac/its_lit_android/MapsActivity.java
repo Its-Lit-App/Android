@@ -70,6 +70,7 @@ public class MapsActivity extends AppCompatActivity implements
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private String[] mDrawerTitles;
+    public static Marker currentMarker = null;
 
     //private String android_id = Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
     private String android_id;
@@ -291,6 +292,7 @@ public class MapsActivity extends AppCompatActivity implements
             @Override
             public View getInfoContents(Marker marker) {
                 eventInfo eventinfo = eventMap.get(marker);
+                currentMarker = marker;
                 // Setting up the infoWindow with current's marker info
                 infoVotes.setText(Integer.toString(eventinfo.getScoreVotes()));
                 infoTitle.setText(marker.getTitle());
@@ -424,7 +426,7 @@ public class MapsActivity extends AppCompatActivity implements
                         infoVotes.setText(Integer.toString(eventinfo.getScoreVotes()));
                         m2.showInfoWindow();
 
-                        if (o.getInt("scoreVotes") == -5) {
+                        if (o.getInt("scoreVotes") == -6) {
                             String eID = null;
                             if (eventinfo.getId() == null) {
                                 eID = eventinfo.PO.getObjectId();
@@ -567,4 +569,7 @@ public class MapsActivity extends AppCompatActivity implements
     public static void moderationModeOff() {
         debug = false;
     }
+
+    public static void updateInfoWindow() { if (currentMarker != null) {currentMarker.showInfoWindow();} }
+    public static boolean getModeration() { return debug; }
 }

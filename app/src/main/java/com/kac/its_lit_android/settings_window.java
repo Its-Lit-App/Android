@@ -25,6 +25,9 @@ public class settings_window extends AppCompatActivity {
 
         //set the switch to OFF
         modSwitch.setChecked(false);
+        if (MapsActivity.getModeration()) {
+            modSwitch.setChecked(true);
+        }
         //attach a listener to check for changes in state
         modSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
@@ -34,9 +37,11 @@ public class settings_window extends AppCompatActivity {
 
                 if(isChecked){
                     MapsActivity.moderationModeOn();
+                    MapsActivity.updateInfoWindow();
                 }
                 else{
-                    MapsActivity.moderationModeOn();
+                    MapsActivity.moderationModeOff();
+                    MapsActivity.updateInfoWindow();
                 }
 
             }
